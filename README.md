@@ -24,5 +24,5 @@ This middleware is used to authenticate requests to an ASP.NET Core API using JW
 3. dotnet run
 
 **Authentication**   
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
-dotnet add package Microsoft.Identity.Web
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer </br>
+dotnet add package Microsoft.Identity.Web </br>
