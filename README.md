@@ -6,11 +6,16 @@
 ## Installs
 dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
 dotnet add package Microsoft.Identity.Web </br>
-*The JWTBearer package is used for authentication: This middleware is commonly used to authenticate requests to an ASP.NET Core API using JWT tokens issued by a trusted authority, such as Azure Active Directory (Azure AD)* [https://auth0.com/resources/ebooks/jwt-handbook?utm_content=irloidc-jwt-jwthandbookebk&utm_source=google&utm_campaign=emea_uki_irl_all_ciam-all_dg-ao_auth0_search_google_text_kw_OIDC_utm2&utm_medium=cpc&utm_id=aNK4z000000UE5AGAW&gad_source=1&gclid=EAIaIQobChMI59rsnbXHiQMVXKRQBh0mtQO8EAAYASAAEgISVvD_BwE](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbearerhandler?view=aspnetcore-8.0)
+*The JWTBearer package is used for authentication.
+This middleware is used to authenticate requests to an ASP.NET Core API using JWT tokens issued by a trusted authority, such as AAD*
 </br>
+*The Web Identity Package is also used for managing Identities. Specifically it is an ASP.NET Core library that simplifies integration with Microsoft Identity Platforms (Azure Active Directory or Azure AD B2C - Now known as Entra ID) for handling authentication and authorization in web applications and APIs. It provides additional functionality to make it easier to secure applications using OAuth2 and OpenID Connect* 
 </br>
-*The Web Identity Package is also used for managing Identities:* https://learn.microsoft.com/en-us/entra/msal/dotnet/microsoft-identity-web/
+## Links
 
+
+**JWTBearer:** https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbearerhandler?view=aspnetcore-8.0
+**Identity Web:** https://learn.microsoft.com/en-us/entra/msal/dotnet/microsoft-identity-web/
 
 ## Commands Ran
 1. dotnet new webapi -o Backend
