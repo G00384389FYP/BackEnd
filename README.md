@@ -4,7 +4,7 @@
 2. dotnet run
 
 ## Installs
-**JWTBearer:** dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+**JWTBearer:** dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer </br>
 *The JWTBearer package is used for authentication.
 This middleware is used to authenticate requests to an ASP.NET Core API using JWT tokens issued by a trusted authority, such as AAD*
 
