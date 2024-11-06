@@ -18,6 +18,11 @@ This middleware is used to authenticate requests to an ASP.NET Core API using JW
 **Identity Web:** https://learn.microsoft.com/en-us/entra/msal/dotnet/microsoft-identity-web/
 
 ## Commands Ran
+**Initialization**
 1. dotnet new webapi -o Backend
 2. cd Backend
 3. dotnet run
+
+**Authentication**   
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package Microsoft.Identity.Web
