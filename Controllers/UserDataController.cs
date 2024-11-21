@@ -28,8 +28,8 @@ namespace NixersDB.Controllers
             }
 
             // Log the received user data
-            _logger.LogInformation("User Data: Id={Id}, Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}, UserType={UserType}",
-                userData.Id, userData.Name, userData.Email, userData.PhoneNumber, userData.UserType);
+            _logger.LogInformation("Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}",
+               userData.Name, userData.Email, userData.PhoneNumber);
 
             // Comment out the database save operation for now
             // _context.UserData.Add(userData);
