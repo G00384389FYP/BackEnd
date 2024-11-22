@@ -10,7 +10,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 builder.Services.AddDbContext<NixersDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AzureSQLDatabase")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     
 
 builder.Services.AddControllers();
@@ -34,6 +34,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
-

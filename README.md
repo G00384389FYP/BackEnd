@@ -26,3 +26,10 @@ This middleware is used to authenticate requests to an ASP.NET Core API using JW
 **Authentication**   
 dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer </br>
 dotnet add package Microsoft.Identity.Web </br>
+
+
+
+
+
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
