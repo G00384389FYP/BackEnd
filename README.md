@@ -33,3 +33,11 @@ dotnet add package Microsoft.Identity.Web </br>
 
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Tools
+
+
+
+**Quick access to Az Query SQL CMDS**
+
+select * from [dbo].[UserData]
+
+delete from [dbo].[UserData] where UserId = 
