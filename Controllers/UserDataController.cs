@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NixersDB;
-// using NixersDB.Models;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
@@ -30,15 +30,19 @@ namespace NixersDB.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Log the received user data
+
             _logger.LogInformation("Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}",
                 userData.Name, userData.Email, userData.phone_number);
 
-            // Save the user data to the database
+
             _context.UserData.Add(userData);
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "User Profile received successfully" });
+
+            _logger.LogInformation("User created successfully with UserId={UserId}", userData.UserId);
+
+
+            return Ok(new { Message = "User Profile received successfully", UserId = userData.UserId });
         }
     }
 }
