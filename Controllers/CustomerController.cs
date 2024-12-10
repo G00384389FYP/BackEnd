@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NixersDB;
+using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
@@ -20,17 +24,14 @@ namespace NixersDB.Controllers
         {
             _logger.LogInformation("Received a POST request to create a customer profile from the frontend.");
 
-            // handle userID sent from front end to an int
             int userId = request.UserId;
 
-            // ensure userID posted exists
             var user = await _context.UserData.FindAsync(userId);
             if (user == null)
             {
                 _logger.LogError("User with ID {UserId} not found.", userId);
                 return NotFound(new { Message = "User not found" });
             }
-
 
             var customerProfile = new CustomerData
             {
@@ -40,15 +41,46 @@ namespace NixersDB.Controllers
                 DateAdded = DateTime.Now
             };
 
-
             _context.CustomerData.Add(customerProfile);
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Customer profile created successfully" });
         }
+
+        [HttpPost("checkCustomerProfile")]
+        public async Task<IActionResult> CheckCustomerProfile([FromBody] UserIdRequest request)
+        {
+            _logger.LogInformation("Received a POST request to check if a customer profile exists.");
+
+            int userId = request.UserId;
+
+            var customerProfile = await _context.CustomerData.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (customerProfile == null)
+            {
+                _logger.LogInformation("Customer profile for UserId {UserId} does not exist.", userId);
+                return Ok(new { Exists = false, Message = "Customer profile does not exist" });
+            }
+
+            _logger.LogInformation("Customer profile for UserId {UserId} exists.", userId);
+
+            // Format the DateAdded property
+            var formattedDateAdded = customerProfile.DateAdded.ToString("yyyy-MM-dd");
+
+            return Ok(new 
+            { 
+                Exists = true,
+                Message = "Customer profile exists", 
+                CustomerProfile = new 
+                {
+                    customerProfile.UserId,
+                    JobsPosted = customerProfile.JobsPosted.ToString(),
+                    customerProfile.IsSuspended,
+                    DateAdded = formattedDateAdded
+                } 
+            });
+        }
     }
 
-    // handle request from front end, turn json info into int
     public class UserIdRequest
     {
         public int UserId { get; set; }
