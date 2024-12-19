@@ -1,3 +1,4 @@
+using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using NixersDB; // Ensure this namespace is correct
@@ -11,7 +12,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddDbContext<NixersDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
+
+builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var cosmosDbConnectionString = configuration.GetConnectionString("CosmosDbConnection");
+    return new CosmosClient(cosmosDbConnectionString);
+});
 
 builder.Services.AddControllers();
 
@@ -24,7 +31,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowAllOrigins");
-
 
 app.UseRouting();
 

@@ -33,7 +33,7 @@ dotnet add package Microsoft.Identity.Web </br>
 
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Tools
-
+dotnet add package Microsoft.Azure.Cosmos
 
 
 **Quick access to Az Query SQL CMDS**
