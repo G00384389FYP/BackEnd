@@ -23,7 +23,7 @@ namespace NixersDB.Controllers
         [HttpPost("addUser")]
         public async Task<IActionResult> AddUser([FromBody] UserData userData)
         {
-            _logger.LogInformation("Received a POST request to add a user.");
+            // _logger.LogInformation("Received a POST request to add a user.");
 
             if (!ModelState.IsValid)
             {
@@ -31,13 +31,13 @@ namespace NixersDB.Controllers
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}",
-                userData.Name, userData.Email, userData.phone_number);
+            // _logger.LogInformation("Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}",
+            //     userData.Name, userData.Email, userData.phone_number);
 
             _context.UserData.Add(userData);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("User created successfully with UserId={UserId}", userData.UserId);
+            // _logger.LogInformation("User created successfully with UserId={UserId}", userData.UserId);
 
             return Ok(new { Message = "User Profile received successfully", UserId = userData.UserId });
         }
@@ -45,12 +45,12 @@ namespace NixersDB.Controllers
         [HttpPost("checkEmail")]
         public async Task<IActionResult> CheckEmail([FromBody] EmailRequest request)
         {
-            _logger.LogInformation("Received a POST request to check if an email exists.");
+            // _logger.LogInformation("Received a POST request to check if an email exists.");
             
             var user = await _context.UserData.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null)
             {
-                _logger.LogInformation("Email {Email} not found.", request.Email);
+                // _logger.LogInformation("Email {Email} not found.", request.Email);
                 return NotFound(new { Message = "Email not found" }); // have the 404 handled by the front end as no email is found then redirect to create user, may need to change to a 200 with a message to be tider but this is fine for now
             }
 
@@ -59,7 +59,6 @@ namespace NixersDB.Controllers
         }
     }
 
-    // handle request from front end, turn json info email to string
     public class EmailRequest
     {
         public string Email { get; set; }
