@@ -62,8 +62,7 @@ namespace NixersDB.Controllers
             }
 
             _logger.LogInformation("Customer profile for UserId {UserId} exists.", userId);
-
-            // Format the DateAdded property
+            
             var formattedDateAdded = customerProfile.DateAdded.ToString("yyyy-MM-dd");
 
             return Ok(new 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NixersDB.Models; 
 
 
 namespace NixersDB
@@ -9,5 +10,6 @@ namespace NixersDB
 
         public DbSet<UserData> UserData { get; set; }
         public DbSet<CustomerData> CustomerData { get; set; }
+        public DbSet<TradesmanData> TradesmanData { get; set; } 
     }
 }
