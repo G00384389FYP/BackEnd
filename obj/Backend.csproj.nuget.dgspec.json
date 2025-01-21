@@ -51,6 +51,10 @@
               "target": "Package",
               "version": "[8.0.10, )"
             },
+            "Microsoft.Azure.Cosmos": {
+              "target": "Package",
+              "version": "[3.46.1, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.0, )"
@@ -68,6 +72,10 @@
             "Microsoft.Identity.Web": {
               "target": "Package",
               "version": "[3.3.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
