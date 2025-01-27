@@ -12,8 +12,8 @@ using NixersDB;
 namespace Backend.Migrations
 {
     [DbContext(typeof(NixersDbContext))]
-    [Migration("20241122193052_AddCustomerDataTable")]
-    partial class AddCustomerDataTable
+    [Migration("20250127211838_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,37 @@ namespace Backend.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("CustomerData");
+                });
+
+            modelBuilder.Entity("NixersDB.Models.TradesmanData", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateJoined")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfJobsCompleted")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Trade")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TradeBio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("WorkDistance")
+                        .HasColumnType("float");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("TradesmanData");
                 });
 
             modelBuilder.Entity("UserData", b =>

@@ -6,7 +6,8 @@ namespace NixersDB.Models
 {
     public class TradesmanData
     {
-         [Key]
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int UserId { get; set; }
 
         public string Trade { get; set; }

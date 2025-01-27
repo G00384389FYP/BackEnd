@@ -41,6 +41,37 @@ namespace Backend.Migrations
                     b.ToTable("CustomerData");
                 });
 
+            modelBuilder.Entity("NixersDB.Models.TradesmanData", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateJoined")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfJobsCompleted")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Trade")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TradeBio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("WorkDistance")
+                        .HasColumnType("float");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("TradesmanData");
+                });
+
             modelBuilder.Entity("UserData", b =>
                 {
                     b.Property<int>("UserId")
