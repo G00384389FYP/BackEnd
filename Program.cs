@@ -1,12 +1,11 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using NixersDB; // Ensure this namespace is correct
+using NixersDB; 
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to enable authentication with Azure AD
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
@@ -16,8 +15,9 @@ builder.Services.AddDbContext<NixersDbContext>(options =>
 builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var cosmosDbConnectionString = configuration.GetConnectionString("CosmosDbConnection");
-    return new CosmosClient(cosmosDbConnectionString);
+    var accountEndpoint = configuration["CosmosDb:AccountEndpoint"];
+    var accountKey = configuration["CosmosDb:AccountKey"];
+    return new CosmosClient(accountEndpoint, accountKey);
 });
 
 builder.Services.AddControllers();
