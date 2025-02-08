@@ -3,34 +3,30 @@ using Newtonsoft.Json;
 
 public class JobData
 {
-    // [JsonIgnore]
-    // public string? JobId { get; set; }
-
     [JsonProperty("id")] 
     public string? Id { get; set; } 
 
     [JsonProperty("UserId")]
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
 
-    [JsonProperty("title")]
-    public string JobTitle { get; set; }
+    [JsonProperty("JobTitle")]
+    public required string JobTitle { get; set; }
 
-    [JsonProperty("description")]
-    public string JobDescription { get; set; }
+    [JsonProperty("JobDescription")]
+    public required string JobDescription { get; set; }
 
-    // [JsonProperty("tradesrequired")]
-    // public string TradesRequired { get; set; }
+    [JsonProperty("TradesRequired")]
+    public required string TradesRequired { get; set; }
 
-    // [JsonProperty("joblocation")]
-    // public string Location { get; set; }
+    [JsonProperty("JobLocation")]
+    public required string JobLocation { get; set; }
 
-    // [JsonProperty("assignedtradesman")]
-    // public string AssignedTradesman { get; set; }
-    
+    [JsonProperty("AssignedTradesman")]
+    public string? AssignedTradesman { get; set; } = null;    
 
-    // [JsonProperty("postedDate")]
-    // public DateTime PostedDate { get; set; }
+    [JsonProperty("JobCreatedAt")]
+    public DateTime JobCreatedAt { get; set; } = DateTime.UtcNow; 
 
-    // [JsonProperty("isActive")]   
-    // public bool IsActive { get; set; }
+    [JsonProperty("JobStatus")]   
+    public string JobStatus { get; set; } = "Open";
 }

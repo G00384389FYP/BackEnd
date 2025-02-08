@@ -202,3 +202,6 @@ C:\Users\markh\Documents\FYP\Backend\obj\Debug\net8.0\refint\Backend.dll
 C:\Users\markh\Documents\FYP\Backend\obj\Debug\net8.0\Backend.pdb
 C:\Users\markh\Documents\FYP\Backend\obj\Debug\net8.0\Backend.genruntimeconfig.cache
 C:\Users\markh\Documents\FYP\Backend\obj\Debug\net8.0\ref\Backend.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\Azure.Storage.Blobs.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\Azure.Storage.Common.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\System.IO.Hashing.dll

@@ -1,8 +1,10 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using NixersDB; 
+using NixersDB;
 using Microsoft.EntityFrameworkCore;
+using Azure.Storage.Blobs;
+using NixersDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,11 @@ builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
     return new CosmosClient(accountEndpoint, accountKey);
 });
 
+string connectionString = builder.Configuration.GetConnectionString("AzureStorage");
+var blobServiceClient = new BlobServiceClient(connectionString);
+builder.Services.AddSingleton(blobServiceClient);
+builder.Services.AddSingleton<BlobStorageService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
@@ -28,7 +35,19 @@ builder.Services.AddCors(options =>
         builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseCors("AllowAllOrigins");
 

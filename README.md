@@ -34,6 +34,8 @@ dotnet add package Microsoft.Identity.Web </br>
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Tools
 dotnet add package Microsoft.Azure.Cosmos
+dotnet add package Azure.Storage.Blobs
+dotnet add package Swashbuckle.AspNetCore
 
 
 **Quick access to Az Query SQL CMDS**
@@ -41,3 +43,10 @@ dotnet add package Microsoft.Azure.Cosmos
 select * from [dbo].[UserData]
 
 delete from [dbo].[UserData] where UserId = 
+
+
+**Swashbuckle Swagger Open API Documentation**
+Run backend and go to
+http://localhost:5001/index.html
+or 
+http://localhost:5001/swagger
