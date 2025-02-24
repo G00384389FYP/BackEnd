@@ -10,7 +10,7 @@ using NixersDB.Models;
 
 namespace NixersDB.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("jobs/[controller]")]
     [ApiController]
     public class JobsController : ControllerBase
     {
@@ -25,7 +25,7 @@ namespace NixersDB.Controllers
             _container = _cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
         }
 
-        [HttpPost("createJob")]
+        [HttpPost("add")]
         public async Task<IActionResult> CreateJob([FromBody] JobData job)
         {
             _logger.LogInformation("Received Job: {JobData}", JsonSerializer.Serialize(job));
@@ -36,7 +36,7 @@ namespace NixersDB.Controllers
            
         }
 
-        [HttpGet("getJobs")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetJobs()
         {
             var query = _container.GetItemQueryIterator<JobData>("SELECT * FROM c");

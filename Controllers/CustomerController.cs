@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("customers/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("createCustomerProfile")]
+        [HttpPost("add")]
         public async Task<IActionResult> CreateCustomerProfile([FromBody] UserIdRequest request)
         {
             _logger.LogInformation("Received a POST request to create a customer profile from the frontend.");
@@ -47,7 +47,7 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Customer profile created successfully" });
         }
 
-        [HttpPost("checkCustomerProfile")]
+        [HttpPost("check")]
         public async Task<IActionResult> CheckCustomerProfile([FromBody] UserIdRequest request)
         {
             _logger.LogInformation("Received a POST request to check if a customer profile exists.");

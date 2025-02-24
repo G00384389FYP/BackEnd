@@ -21,6 +21,9 @@ public class JobData
     [JsonProperty("JobLocation")]
     public required string JobLocation { get; set; }
 
+    [JsonProperty("JobImage")]
+    public string JobImage { get; set; }
+
     [JsonProperty("AssignedTradesman")]
     public string? AssignedTradesman { get; set; } = null;    
 

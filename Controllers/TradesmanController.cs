@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("tradies/[controller]")]
     [ApiController]
     public class TradesmanController : ControllerBase
     {
@@ -22,7 +22,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("createTradesmanProfile")]
+        [HttpPost("add")]
         public async Task<IActionResult> CreateTradesmanProfile([FromBody] TradesmanProfileRequest request)
         {
             _logger.LogInformation("Received a POST request to create a tradesman profile from the frontend.");
@@ -53,7 +53,7 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Tradesman profile created successfully" });
         }
 
-        [HttpPost("checkTradesmanProfile")]
+        [HttpPost("check")]
         public async Task<IActionResult> CheckTradesmanProfile([FromBody] UserIdRequest request)
         {
             _logger.LogInformation("Received a POST request to check if a tradesman profile exists.");
