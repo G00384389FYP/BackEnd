@@ -21,7 +21,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("addUser")]
+        [HttpPost("add")]
         public async Task<IActionResult> AddUser([FromBody] UserData userData)
         {
             // _logger.LogInformation("Received a POST request to add a user.");
