@@ -49,3 +49,5 @@ delete from [dbo].[UserData] where UserId =
 Run backend and go to
 http://localhost:5001/index.html
 or 
+
+Test Commit to try smart commits #close
