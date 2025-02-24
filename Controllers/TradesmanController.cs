@@ -22,7 +22,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> CreateTradesmanProfile([FromBody] TradesmanProfileRequest request)
         {
             _logger.LogInformation("Received a POST request to create a tradesman profile from the frontend.");
@@ -52,13 +52,12 @@ namespace NixersDB.Controllers
 
             return Ok(new { Message = "Tradesman profile created successfully" });
         }
+        
 
-        [HttpPost("check")]
-        public async Task<IActionResult> CheckTradesmanProfile([FromBody] UserIdRequest request)
+        [HttpGet]
+        public async Task<IActionResult> CheckTradesmanProfile([FromQuery] int userId)
         {
-            _logger.LogInformation("Received a POST request to check if a tradesman profile exists.");
-
-            int userId = request.UserId;
+            _logger.LogInformation("Received a GET request to check if a tradesman profile exists.");
 
             var tradesmanProfile = await _context.TradesmanData.FirstOrDefaultAsync(t => t.UserId == userId);
             if (tradesmanProfile == null)
@@ -68,14 +67,14 @@ namespace NixersDB.Controllers
             }
 
             _logger.LogInformation("Tradesman profile for UserId {UserId} exists.", userId);
-            
+
             var formattedDateJoined = tradesmanProfile.DateJoined.ToString("yyyy-MM-dd");
 
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 Exists = true,
-                Message = "Tradesman profile exists", 
-                TradesmanProfile = new 
+                Message = "Tradesman profile exists",
+                TradesmanProfile = new
                 {
                     tradesmanProfile.UserId,
                     tradesmanProfile.Trade,
@@ -84,12 +83,14 @@ namespace NixersDB.Controllers
                     tradesmanProfile.TradeBio,
                     tradesmanProfile.WorkDistance,
                     DateJoined = formattedDateJoined
-                } 
+                }
             });
         }
+
+
     }
 
-     public class TradesmanProfileRequest
+    public class TradesmanProfileRequest
     {
         public int UserId { get; set; }
         public string Trade { get; set; }

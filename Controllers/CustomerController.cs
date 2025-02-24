@@ -19,7 +19,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> CreateCustomerProfile([FromBody] UserIdRequest request)
         {
             _logger.LogInformation("Received a POST request to create a customer profile from the frontend.");
@@ -47,12 +47,10 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Customer profile created successfully" });
         }
 
-        [HttpPost("check")]
-        public async Task<IActionResult> CheckCustomerProfile([FromBody] UserIdRequest request)
+        [HttpGet]
+        public async Task<IActionResult> CheckCustomerProfile([FromQuery] int userId)
         {
-            _logger.LogInformation("Received a POST request to check if a customer profile exists.");
-
-            int userId = request.UserId;
+            _logger.LogInformation("Received a GET request to check if a customer profile exists.");
 
             var customerProfile = await _context.CustomerData.FirstOrDefaultAsync(c => c.UserId == userId);
             if (customerProfile == null)
@@ -62,22 +60,22 @@ namespace NixersDB.Controllers
             }
 
             _logger.LogInformation("Customer profile for UserId {UserId} exists.", userId);
-            
+
             var formattedDateAdded = customerProfile.DateAdded.ToString("yyyy-MM-dd");
 
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 Exists = true,
-                Message = "Customer profile exists", 
-                CustomerProfile = new 
+                Message = "Customer profile exists",
+                CustomerProfile = new
                 {
                     customerProfile.UserId,
                     JobsPosted = customerProfile.JobsPosted.ToString(),
                     customerProfile.IsSuspended,
                     DateAdded = formattedDateAdded
-                } 
+                }
             });
-        }
+        }       
     }
 
     public class UserIdRequest

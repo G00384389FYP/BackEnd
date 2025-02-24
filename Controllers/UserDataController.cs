@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    // [Route("users/[controller]")]
     [Route("users")]
     [ApiController]
     public class UserController : ControllerBase
@@ -21,10 +20,9 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<IActionResult> AddUser([FromBody] UserData userData)
         {
-            // _logger.LogInformation("Received a POST request to add a user.");
 
             if (!ModelState.IsValid)
             {
@@ -32,36 +30,28 @@ namespace NixersDB.Controllers
                 return BadRequest(ModelState);
             }
 
-            // _logger.LogInformation("Name={Name}, Email={Email}, PhoneNumber={PhoneNumber}",
-            //     userData.Name, userData.Email, userData.phone_number);
-
             _context.UserData.Add(userData);
             await _context.SaveChangesAsync();
 
-            // _logger.LogInformation("User created successfully with UserId={UserId}", userData.UserId);
-
             return Ok(new { Message = "User Profile received successfully", UserId = userData.UserId });
         }
-
-        [HttpPost("check")]
-        public async Task<IActionResult> CheckEmail([FromBody] EmailRequest request)
+    
+        [HttpGet]
+        public async Task<IActionResult> GetUserIdByEmail([FromQuery] string email)
         {
-            // _logger.LogInformation("Received a POST request to check if an email exists.");
-            
-            var user = await _context.UserData.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.UserData.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                // _logger.LogInformation("Email {Email} not found.", request.Email);
-                return NotFound(new { Message = "Email not found" }); // have the 404 handled by the front end as no email is found then redirect to create user, may need to change to a 200 with a message to be tider but this is fine for now
+                return NotFound(new { Message = "Email not found" });
             }
 
-            _logger.LogInformation("Email {Email} found with UserId={UserId}", request.Email, user.UserId);
+            _logger.LogInformation("Email {Email} found with UserId={UserId}", email, user.UserId);
             return Ok(new { UserId = user.UserId });
         }
     }
 
     public class EmailRequest
     {
-        public string Email { get; set; }
+        public required string Email { get; set; }
     }
 }

@@ -25,7 +25,8 @@ namespace NixersDB.Controllers
             _container = _cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
         }
 
-        [HttpPost("add")]
+        [HttpPost]
+
         public async Task<IActionResult> CreateJob([FromBody] JobData job)
         {
             _logger.LogInformation("Received Job: {JobData}", JsonSerializer.Serialize(job));
@@ -33,10 +34,10 @@ namespace NixersDB.Controllers
             job.Id = Guid.NewGuid().ToString();
             var response = await _container.CreateItemAsync(job, new PartitionKey(job.UserId));
             return Ok(response.Resource);
-           
+
         }
 
-        [HttpGet("get")]
+        [HttpGet]
         public async Task<IActionResult> GetJobs()
         {
             var query = _container.GetItemQueryIterator<JobData>("SELECT * FROM c");
