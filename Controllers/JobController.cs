@@ -10,7 +10,7 @@ using NixersDB.Models;
 
 namespace NixersDB.Controllers
 {
-    [Route("jobs/[controller]")]
+    [Route("jobs")]
     [ApiController]
     public class JobsController : ControllerBase
     {

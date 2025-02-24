@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    [Route("tradies/[controller]")]
+    [Route("tradies")]
     [ApiController]
     public class TradesmanController : ControllerBase
     {

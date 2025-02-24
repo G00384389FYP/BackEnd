@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    [Route("users/[controller]")]
+    // [Route("users/[controller]")]
+    [Route("users")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -20,7 +21,7 @@ namespace NixersDB.Controllers
             _context = context;
         }
 
-        [HttpPost("add")]
+        [HttpPost("addUser")]
         public async Task<IActionResult> AddUser([FromBody] UserData userData)
         {
             // _logger.LogInformation("Received a POST request to add a user.");
@@ -42,7 +43,7 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "User Profile received successfully", UserId = userData.UserId });
         }
 
-        [HttpPost("checkEmail")]
+        [HttpPost("check")]
         public async Task<IActionResult> CheckEmail([FromBody] EmailRequest request)
         {
             // _logger.LogInformation("Received a POST request to check if an email exists.");

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NixersDB.Controllers
 {
-    [Route("customers/[controller]")]
+    [Route("customers")]
     [ApiController]
     public class CustomerController : ControllerBase
     {

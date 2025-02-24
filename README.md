@@ -49,4 +49,3 @@ delete from [dbo].[UserData] where UserId =
 Run backend and go to
 http://localhost:5001/index.html
 or 
-http://localhost:5001/swagger
