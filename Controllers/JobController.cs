@@ -51,5 +51,32 @@ namespace NixersDB.Controllers
 
             return Ok(results);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetJob(string id)
+        {
+            _logger.LogInformation("Received a GET request to retrieve job with ID: {JobId}", id);
+
+            try
+            {
+                var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
+                    .WithParameter("@id", id);
+                var iterator = _container.GetItemQueryIterator<JobData>(query);
+                var job = await iterator.ReadNextAsync();
+
+                if (job.Count == 0)
+                {
+                    _logger.LogWarning("Job with ID: {JobId} not found.", id);
+                    return NotFound(new { Message = "Job not found" });
+                }
+
+                return Ok(job.First());
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("Job with ID: {JobId} not found.", id);
+                return NotFound(new { Message = "Job not found" });
+            }
+        }
     }
 }
