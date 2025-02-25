@@ -26,6 +26,7 @@ namespace NixersDB.Controllers
 
             application.JobId = jobId;
             application.Id = Guid.NewGuid();
+            application.Status = "pending";
             application.CreatedAt = DateTime.UtcNow;
             application.UpdatedAt = DateTime.UtcNow;
 
