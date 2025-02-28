@@ -12,8 +12,8 @@ public class JobApplications
     [Required]
     public int TradesmanId { get; set; }
 
-    // [Required]
-    // public int CustomerId { get; set; }
+    [Required]
+    public int CustomerId { get; set; }
 
     [Required]
     [StringLength(20)]

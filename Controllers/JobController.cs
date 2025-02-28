@@ -26,7 +26,6 @@ namespace NixersDB.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> CreateJob([FromBody] JobData job)
         {
             _logger.LogInformation("Received Job: {JobData}", JsonSerializer.Serialize(job));
@@ -34,7 +33,6 @@ namespace NixersDB.Controllers
             job.Id = Guid.NewGuid().ToString();
             var response = await _container.CreateItemAsync(job, new PartitionKey(job.UserId));
             return Ok(response.Resource);
-
         }
 
         [HttpGet]
@@ -77,6 +75,31 @@ namespace NixersDB.Controllers
                 _logger.LogWarning("Job with ID: {JobId} not found.", id);
                 return NotFound(new { Message = "Job not found" });
             }
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetJobsByUserId(string userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve jobs for UserId: {UserId}", userId);
+
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.UserId = @userId")
+                .WithParameter("@userId", userId);
+            var iterator = _container.GetItemQueryIterator<JobData>(query);
+            var results = new List<JobData>();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                results.AddRange(response.ToList());
+            }
+
+            if (results.Count == 0)
+            {
+                _logger.LogWarning("No jobs found for UserId: {UserId}", userId);
+                return NotFound(new { Message = "No jobs found" });
+            }
+
+            return Ok(results);
         }
     }
 }
