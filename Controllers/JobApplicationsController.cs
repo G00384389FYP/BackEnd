@@ -48,6 +48,8 @@ namespace NixersDB.Controllers
         public async Task<IActionResult> UpdateJobApplication(Guid applicationId, [FromBody] JobApplications application)
         {
             _logger.LogInformation("Received a PUT request to update a job application.");
+            _logger.LogInformation("Job Application: {JobApplication}", JsonSerializer.Serialize(application));
+            _logger.LogInformation("Job Application tradesman ID: {TradesmanId}", application.TradesmanId);
 
             var existingApplication = await _context.JobApplications.FindAsync(applicationId);
             if (existingApplication == null)
@@ -56,12 +58,42 @@ namespace NixersDB.Controllers
             }
 
             existingApplication.Status = application.Status;
+            // existingApplication.TradesmanId = application.TradesmanId; // Ensure TradesmanId is updated
             existingApplication.UpdatedAt = DateTime.UtcNow;
 
             _context.JobApplications.Update(existingApplication);
-            await _context.SaveChangesAsync();            
+            await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Job application updated successfully" });
+            // Log the updated job application
+            _logger.LogInformation("Updated job application: {JobApplication}", JsonSerializer.Serialize(existingApplication));
+            _logger.LogInformation("Updated job application tradesman ID: {TradesmanId}", existingApplication.TradesmanId);
+
+            // Fetch job document from Cosmos DB
+            var jobQuery = new QueryDefinition("SELECT * FROM c WHERE c.id = @jobId")
+                .WithParameter("@jobId", existingApplication.JobId.ToString());
+            var jobIterator = _jobContainer.GetItemQueryIterator<JobData>(jobQuery);
+            var jobDocument = await jobIterator.ReadNextAsync();
+
+            if (jobDocument.Any())
+            {
+                var job = jobDocument.First();
+                // job.AssignedTradesman = existingApplication.TradesmanId.ToString(); // Update the assigned tradesman
+                job.JobStatus = "closed"; // Update the job status
+                job.AssignedTradesman = existingApplication.TradesmanId.ToString(); // Update the assigned tradesman
+
+
+                // Log the job data
+                _logger.LogInformation("tradesman in job is now: {TradesmanId}", job.AssignedTradesman);
+
+                // Replace the job document in Cosmos DB
+                await _jobContainer.ReplaceItemAsync(job, job.Id);
+            }
+            else
+            {
+                return NotFound(new { Message = "Job document not found in Cosmos DB" });
+            }
+
+            return Ok(new { Message = "Job application and job document updated successfully" });
         }
 
         [HttpGet("{customerId}")]
