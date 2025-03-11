@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NixersDB;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NixersDB.Controllers
 {
@@ -75,7 +77,44 @@ namespace NixersDB.Controllers
                     DateAdded = formattedDateAdded
                 }
             });
-        }       
+        }     
+
+        [HttpGet("job-applications")]
+        public async Task<IActionResult> GetCustomerJobApplications([FromQuery] int userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve a customer's job applications.");
+
+            var jobApplications = await _context.JobApplications
+                .Where(ja => ja.CustomerId == userId)
+                .Join(_context.UserData,
+                      ja => ja.TradesmanId,
+                      u => u.UserId,
+                      (ja, u) => new
+                      {
+                          ja.Id,
+                          ja.CreatedAt,
+                          ja.CustomerId,
+                          ja.JobId,
+                          ja.Status,
+                          ja.TradesmanId,
+                          ja.UpdatedAt,
+                          Tradesman = new
+                          {
+                              u.UserId,
+                              u.Name,
+                              u.Email 
+                          }
+                      })
+                .ToListAsync();
+
+            if (!jobApplications.Any())
+            {
+                _logger.LogInformation("No job applications found for UserId {UserId}.", userId);
+                return NotFound(new { Message = "No job applications found" });
+            }
+
+            return Ok(jobApplications);
+        }
     }
 
     public class UserIdRequest

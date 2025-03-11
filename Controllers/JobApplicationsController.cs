@@ -26,7 +26,6 @@ namespace NixersDB.Controllers
             _jobContainer = cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
         }
 
-       
         [HttpPost]
         public async Task<IActionResult> CreateJobApplication(Guid jobId, [FromBody] JobApplications application)
         {
@@ -45,6 +44,25 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Job application created successfully", ApplicationId = application.Id });
         }
 
+        [HttpPut("{applicationId}")]
+        public async Task<IActionResult> UpdateJobApplication(Guid applicationId, [FromBody] JobApplications application)
+        {
+            _logger.LogInformation("Received a PUT request to update a job application.");
+
+            var existingApplication = await _context.JobApplications.FindAsync(applicationId);
+            if (existingApplication == null)
+            {
+                return NotFound(new { Message = "Job application not found" });
+            }
+
+            existingApplication.Status = application.Status;
+            existingApplication.UpdatedAt = DateTime.UtcNow;
+
+            _context.JobApplications.Update(existingApplication);
+            await _context.SaveChangesAsync();            
+
+            return Ok(new { Message = "Job application updated successfully" });
+        }
 
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetJobApplicationsForCustomer(int customerId)
@@ -89,5 +107,17 @@ namespace NixersDB.Controllers
 
             return Ok(result);
         }
+    }
+}
+
+namespace NixersDB.Models
+{
+    public class JobData
+    {
+        public string Id { get; set; }
+        public string UserId { get; set; }
+        // other properties...
+
+        public bool IsActive { get; set; } // Add IsActive property
     }
 }
