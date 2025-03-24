@@ -8,6 +8,12 @@ using NixersDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//  For detailed logs on azure
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole(); 
+builder.Logging.SetMinimumLevel(LogLevel.Debug); 
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 

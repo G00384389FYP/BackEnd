@@ -39,14 +39,22 @@ namespace NixersDB.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserIdByEmail([FromQuery] string email)
         {
-            var user = await _context.UserData.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
+            try
             {
-                return NotFound(new { Message = "Email not found" });
-            }
+                var user = await _context.UserData.FirstOrDefaultAsync(u => u.Email == email);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "Email not found" });
+                }
 
-            _logger.LogInformation("Email {Email} found with UserId={UserId}", email, user.UserId);
-            return Ok(new { UserId = user.UserId });
+                _logger.LogInformation("Email {Email} found with UserId={UserId}", email, user.UserId);
+                return Ok(new { UserId = user.UserId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting user by email {Email}", email);
+                return StatusCode(500, new { Message = "An error occurred while processing your request." });
+            }
         }
     }
 
