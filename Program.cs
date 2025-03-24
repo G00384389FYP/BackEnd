@@ -28,10 +28,14 @@ builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
     return new CosmosClient(accountEndpoint, accountKey);
 });
 
+Console.WriteLine(" starting blob"); // debug for /users issue
 string connectionString = builder.Configuration.GetConnectionString("AzureStorage");
 var blobServiceClient = new BlobServiceClient(connectionString);
 builder.Services.AddSingleton(blobServiceClient);
 builder.Services.AddSingleton<BlobStorageService>();
+Console.WriteLine("Blob Complte "); // debug for /users issue
+
+
 
 builder.Services.AddControllers();
 
