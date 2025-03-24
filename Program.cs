@@ -64,4 +64,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
+Console.WriteLine("App startup completed successfully"); // debug for /users issue
+
+
 app.Run();
