@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NixersDB;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace NixersDB.Controllers
 {
@@ -35,7 +36,7 @@ namespace NixersDB.Controllers
 
             return Ok(new { Message = "User Profile received successfully", UserId = userData.UserId });
         }
-    
+
         [HttpGet]
         public async Task<IActionResult> GetUserIdByEmail([FromQuery] string email)
         {
@@ -50,10 +51,15 @@ namespace NixersDB.Controllers
                 _logger.LogInformation("Email {Email} found with UserId={UserId}", email, user.UserId);
                 return Ok(new { UserId = user.UserId });
             }
+            catch (Microsoft.Data.SqlClient.SqlException ex)
+            {
+                Console.WriteLine($"SQL Error: {ex.Message}");
+                return StatusCode(500, "Database error occurred.");
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while getting user by email {Email}", email);
-                return StatusCode(500, new { Message = "An error occurred while processing your request." });
+                Console.WriteLine($"Unhandled Error: {ex.Message}");
+                return StatusCode(500, "Something went wrong.");
             }
         }
     }
