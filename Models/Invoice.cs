@@ -10,10 +10,10 @@ public class Invoice
     public string JobId { get; set; }  
 
     [Required]
-    public string TradesmanId { get; set; }
+    public int TradesmanId { get; set; }
 
     [Required]
-    public string CustomerId { get; set; }
+    public int CustomerId { get; set; }
 
     [Required]
     [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
