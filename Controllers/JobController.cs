@@ -53,7 +53,7 @@ namespace NixersDB.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetJob(string id)
         {
-            _logger.LogInformation("Received a GET request to retrieve job with ID: {JobId}", id);
+            _logger.LogInformation("Received a PUT request to update job with ID: {JobId}", id);
 
             try
             {
@@ -125,6 +125,39 @@ namespace NixersDB.Controllers
             }
 
             return Ok(results);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutJobStatusComplete(string id)
+        {
+            _logger.LogInformation("Received a PUT request to update job status to complete for JobId: {JobId}", id);
+
+            try
+            {
+                var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
+                    .WithParameter("@id", id);
+                var iterator = _container.GetItemQueryIterator<JobData>(query);
+                var jobDocument = await iterator.ReadNextAsync();
+
+                if (!jobDocument.Any())
+                {
+                    _logger.LogWarning("Job with ID: {JobId} not found.", id);
+                    return NotFound(new { Message = "Job not found" });
+                }
+
+                var job = jobDocument.First();
+                job.JobStatus = "Complete";
+
+                await _container.ReplaceItemAsync(job, job.Id, new PartitionKey(job.UserId));
+
+                _logger.LogInformation("Job status updated to complete for JobId: {JobId}", id);
+                return Ok(new { Message = "Job status updated to complete" });
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("Job with ID: {JobId} not found.", id);
+                return NotFound(new { Message = "Job not found" });
+            }
         }
     }
 }
