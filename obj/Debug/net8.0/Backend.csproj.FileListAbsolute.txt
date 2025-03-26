@@ -205,3 +205,9 @@ C:\Users\markh\Documents\FYP\Backend\obj\Debug\net8.0\ref\Backend.dll
 C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\Azure.Storage.Blobs.dll
 C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\Azure.Storage.Common.dll
 C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\System.IO.Hashing.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\System.Data.SqlClient.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\runtimes\win-arm64\native\sni.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\runtimes\win-x64\native\sni.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\runtimes\win-x86\native\sni.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\runtimes\unix\lib\net8.0\System.Data.SqlClient.dll
+C:\Users\markh\Documents\FYP\Backend\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Data.SqlClient.dll

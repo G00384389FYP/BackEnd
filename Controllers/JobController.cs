@@ -101,5 +101,30 @@ namespace NixersDB.Controllers
 
             return Ok(results);
         }
+
+        [HttpGet("tradesman/{userId}")]
+        public async Task<IActionResult> GetAssignedJobsByUserId(string userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve assigned jobs for UserId: {UserId}", userId);
+
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.AssignedTradesman = @userId")
+                .WithParameter("@userId", userId);
+            var iterator = _container.GetItemQueryIterator<JobData>(query);
+            var results = new List<JobData>();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                results.AddRange(response.ToList());
+            }
+
+            if (results.Count == 0)
+            {
+                _logger.LogWarning("No jobs found for UserId: {UserId}", userId);
+                return NotFound(new { Message = "No jobs found" });
+            }
+
+            return Ok(results);
+        }
     }
 }
