@@ -102,6 +102,9 @@ namespace NixersDB.Controllers
             return Ok(results);
         }
 
+
+
+        // Going to stop calling this but keeping it here cuz ill probably need it later reminder to remove if not ****************
         [HttpGet("tradesman/{userId}")]
         public async Task<IActionResult> GetAssignedJobsByUserId(string userId)
         {
@@ -121,6 +124,58 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No jobs found for UserId: {UserId}", userId);
+                return NotFound(new { Message = "No jobs found" });
+            }
+
+            return Ok(results);
+        }
+
+        [HttpGet("tradesman/{userId}/inprogress")]
+        public async Task<IActionResult> GetInProgressAssignedJobsByUserId(string userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve assigned jobs for UserId: {UserId}", userId);
+
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.AssignedTradesman = @userId AND c.JobStatus = @jobStatus")
+                .WithParameter("@userId", userId)
+                .WithParameter("@jobStatus", "inprogress");
+            var iterator = _container.GetItemQueryIterator<JobData>(query);
+            var results = new List<JobData>();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                results.AddRange(response.ToList());
+            }
+
+            if (results.Count == 0)
+            {
+                _logger.LogWarning("No jobs found for UserId: {UserId} with status 'inprogress'", userId);
+                return NotFound(new { Message = "No jobs found" });
+            }
+
+            return Ok(results);
+        }
+
+        [HttpGet("tradesman/{userId}/completed")]
+        public async Task<IActionResult> GetCompletedAssignedJobsByUserId(string userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve assigned jobs for UserId: {UserId}", userId);
+
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.AssignedTradesman = @userId AND c.JobStatus = @jobStatus")
+                .WithParameter("@userId", userId)
+                .WithParameter("@jobStatus", "Complete");
+            var iterator = _container.GetItemQueryIterator<JobData>(query);
+            var results = new List<JobData>();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                results.AddRange(response.ToList());
+            }
+
+            if (results.Count == 0)
+            {
+                _logger.LogWarning("No jobs found for UserId: {UserId} with status 'Complete'", userId);
                 return NotFound(new { Message = "No jobs found" });
             }
 
