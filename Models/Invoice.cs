@@ -29,6 +29,9 @@ public class Invoice
     public DateTime? DueDate { get; set; }
 
     [Required]
+    public string? PaymentType { get; set; } 
+
+    [Required]
     [StringLength(20)]
     public string Status { get; set; } = "Pending";
 
