@@ -18,8 +18,25 @@ public class InvoiceController : ControllerBase
     {
         _context = context;
         _config = config;
-            _cosmosContainer = cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
+        _cosmosContainer = cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetInvoiceByCustomerId(string id)
+    {
+        var invoices = await _context.Invoices
+            .Where(invoice => invoice.CustomerId == int.Parse(id))
+            .ToListAsync();
+
+        if (!invoices.Any())
+        {
+            return Ok(new { Message = "No invoices found for the specified customer." });
         }
+
+        return Ok(invoices);
+    }
+
+
 
     [HttpPost("{id}")]
     public async Task<IActionResult> CreateInvoice([FromBody] Invoice invoice)
@@ -30,10 +47,27 @@ public class InvoiceController : ControllerBase
         invoice.IssuedDate = DateTime.UtcNow;
         invoice.Status = "Pending";
 
+        // Call the CreatePaymentIntent method to generate a payment intent
+        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+        var options = new PaymentIntentCreateOptions
+        {
+            Amount = (int)(invoice.Amount * 100), // Convert amount to cents
+            Currency = invoice.Currency.ToLower(),
+            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+            {
+                Enabled = true,
+            },
+        };
+
+        var service = new PaymentIntentService();
+        var intent = await service.CreateAsync(options);
+
+        // Save the PaymentIntentId to the invoice
+        invoice.StripePaymentIntentId = intent.Id;
+
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();
 
-        // Update job status in Cosmos DB to be invoiced
         var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @jobId")
             .WithParameter("@jobId", invoice.JobId);
         var iterator = _cosmosContainer.GetItemQueryIterator<JobData>(query);
@@ -52,12 +86,12 @@ public class InvoiceController : ControllerBase
 
         return Ok(invoice);
     }
-   
+
 
     [HttpPost("payment-intent")]
     public async Task<IActionResult> CreatePaymentIntent([FromBody] int amount)
     {
-        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"]; 
+        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
         var options = new PaymentIntentCreateOptions
         {
