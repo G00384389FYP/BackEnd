@@ -8,6 +8,7 @@ using Microsoft.Azure.Cosmos;
 using NixersDB;
 using NixersDB.Models;
 
+
 [Route("invoices")]
 [ApiController]
 public class InvoiceController : ControllerBase
@@ -15,10 +16,12 @@ public class InvoiceController : ControllerBase
     private readonly NixersDbContext _context;
     private readonly IConfiguration _config;
     private readonly Container _cosmosContainer;
+    private readonly CosmosClient _cosmosClient;
     public InvoiceController(NixersDbContext context, IConfiguration config, CosmosClient cosmosClient)
     {
         _context = context;
         _config = config;
+        _cosmosClient = cosmosClient;
         _cosmosContainer = cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
     }
 
@@ -38,7 +41,6 @@ public class InvoiceController : ControllerBase
     }
 
 
-
     [HttpPost("{id}")]
     public async Task<IActionResult> CreateInvoice([FromBody] Invoice invoice)
     {
@@ -47,22 +49,6 @@ public class InvoiceController : ControllerBase
         invoice.UpdatedAt = DateTime.UtcNow;
         invoice.IssuedDate = DateTime.UtcNow;
         invoice.Status = "Pending";
-
-        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
-        var options = new PaymentIntentCreateOptions
-        {
-            Amount = (int)(invoice.Amount * 100), 
-            Currency = invoice.Currency.ToLower(),
-            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-            {
-                Enabled = true,
-            },
-        };
-
-        var service = new PaymentIntentService();
-        var intent = await service.CreateAsync(options);
-
-        invoice.StripePaymentIntentId = intent.Id;
 
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();
@@ -75,7 +61,6 @@ public class InvoiceController : ControllerBase
         {
             var response = await iterator.ReadNextAsync();
             var job = response.FirstOrDefault();
-
             if (job != null)
             {
                 job.JobStatus = "Invoiced";
@@ -85,6 +70,7 @@ public class InvoiceController : ControllerBase
 
         return Ok(invoice);
     }
+
 
 
     [HttpPost("payment-intent")]
@@ -108,49 +94,80 @@ public class InvoiceController : ControllerBase
         return Ok(new { clientSecret = intent.ClientSecret });
     }
 
-    [HttpPost("pay/{id}")]
-    public async Task<IActionResult> CreateCheckoutSession(Guid id)
+    [HttpPost("pay/{invoiceId}")]
+    public async Task<IActionResult> CreateCheckoutSession(Guid invoiceId)
     {
-        var invoice = await _context.Invoices.FindAsync(id);
+        var invoice = await _context.Invoices.FindAsync(invoiceId);
         if (invoice == null) return NotFound("Invoice not found");
 
         StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
-        // Create a chckout session
         var options = new SessionCreateOptions
         {
-            PaymentIntentData = new SessionPaymentIntentDataOptions
-            {
-                SetupFutureUsage = "off_session"
-            },
             PaymentMethodTypes = new List<string> { "card" },
             LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
             {
-                new SessionLineItemOptions
+                PriceData = new SessionLineItemPriceDataOptions
                 {
-                    PriceData = new SessionLineItemPriceDataOptions
+                    Currency = invoice.Currency.ToLower(),
+                    UnitAmount = (long)(invoice.Amount * 100),
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Currency = invoice.Currency.ToLower(),
-                        UnitAmount = (long)(invoice.Amount * 100), 
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = "Invoice Payment",
-                            Description = $"Payment for Job #{invoice.JobId}"
-                        },
-                    },
-                    Quantity = 1,
-                }
-            },
+                        Name = "Invoice Payment",
+                        Description = $"Payment for Job with Invoice ID #{invoice.InvoiceId}"
+                    }
+                },
+                Quantity = 1
+            }
+        },
             Mode = "payment",
-            SuccessUrl = $"{_config["Stripe:ReturnUrlBase"]}/payment/success?invoiceId={id}",
-            CancelUrl = $"{_config["Stripe:ReturnUrlBase"]}/payment/cancel?invoiceId={id}"
+            SuccessUrl = _config["Stripe:ReturnUrlBase"] + $"/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+            CancelUrl = _config["Stripe:ReturnUrlBase"] + $"/payment/cancel?invoiceId={invoiceId}",
+            
+
         };
 
         var service = new SessionService();
         var session = await service.CreateAsync(options);
+        invoice.StripeCheckoutSessionId = session.Id;
+        await _context.SaveChangesAsync();       
 
         return Ok(new { url = session.Url });
     }
+
+
+    [HttpPut("confirm/{sessionId}")]
+    public async Task<IActionResult> ConfirmPaymentAndUpdateInvoice(string sessionId)
+    {
+        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+
+        
+        var sessionService = new SessionService();
+        var session = await sessionService.GetAsync(sessionId);
+        Console.WriteLine(sessionId);
+        Console.WriteLine(session.PaymentStatus);
+
+        if (session.PaymentStatus != "paid")
+            return BadRequest("Payment not completed.");
+
+        await _context.SaveChangesAsync();
+
+        var invoice = await _context.Invoices
+            .FirstOrDefaultAsync(i => i.StripeCheckoutSessionId == sessionId);
+
+        if (invoice == null)
+            return NotFound("Invoice not found.");
+
+        invoice.Status = "Paid";
+        invoice.PaymentDate = DateTime.UtcNow;
+        await _context.SaveChangesAsync();       
+        
+
+        return Ok("Paid.");
+    }
+   
 
 
     // Model for the request body for payments

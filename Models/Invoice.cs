@@ -35,7 +35,7 @@ public class Invoice
     [StringLength(20)]
     public string Status { get; set; } = "Pending";
 
-    public string? StripePaymentLink { get; set; }
+    public string? StripeCheckoutSessionId { get; set; }
 
     public string? StripePaymentIntentId { get; set; }
 

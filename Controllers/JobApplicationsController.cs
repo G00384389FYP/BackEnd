@@ -58,17 +58,15 @@ namespace NixersDB.Controllers
             }
 
             existingApplication.Status = application.Status;
-            // existingApplication.TradesmanId = application.TradesmanId; // Ensure TradesmanId is updated
+            // existingApplication.TradesmanId = application.TradesmanId; 
             existingApplication.UpdatedAt = DateTime.UtcNow;
 
             _context.JobApplications.Update(existingApplication);
             await _context.SaveChangesAsync();
 
-            // Log the updated job application
-            _logger.LogInformation("Updated job application: {JobApplication}", JsonSerializer.Serialize(existingApplication));
-            _logger.LogInformation("Updated job application tradesman ID: {TradesmanId}", existingApplication.TradesmanId);
+            // _logger.LogInformation("Updated job application: {JobApplication}", JsonSerializer.Serialize(existingApplication));
+            // _logger.LogInformation("Updated job application tradesman ID: {TradesmanId}", existingApplication.TradesmanId);
 
-            // Fetch job document from Cosmos DB
             var jobQuery = new QueryDefinition("SELECT * FROM c WHERE c.id = @jobId")
                 .WithParameter("@jobId", existingApplication.JobId.ToString());
             var jobIterator = _jobContainer.GetItemQueryIterator<JobData>(jobQuery);
@@ -77,15 +75,10 @@ namespace NixersDB.Controllers
             if (jobDocument.Any())
             {
                 var job = jobDocument.First();
-                // job.AssignedTradesman = existingApplication.TradesmanId.ToString(); // Update the assigned tradesman
-                job.JobStatus = "closed"; // Update the job status
-                job.AssignedTradesman = existingApplication.TradesmanId.ToString(); // Update the assigned tradesman
-
-
-                // Log the job data
-                _logger.LogInformation("tradesman in job is now: {TradesmanId}", job.AssignedTradesman);
-
-                // Replace the job document in Cosmos DB
+                // job.AssignedTradesman = existingApplication.TradesmanId.ToString(); 
+                job.JobStatus = "closed"; 
+                job.AssignedTradesman = existingApplication.TradesmanId.ToString(); 
+                   
                 await _jobContainer.ReplaceItemAsync(job, job.Id);
             }
             else
@@ -139,17 +132,5 @@ namespace NixersDB.Controllers
 
             return Ok(result);
         }
-    }
-}
-
-namespace NixersDB.Models
-{
-    public class JobData
-    {
-        public string Id { get; set; }
-        public string UserId { get; set; }
-        // other properties...
-
-        public bool IsActive { get; set; } // Add IsActive property
     }
 }
