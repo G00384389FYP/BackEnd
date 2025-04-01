@@ -108,14 +108,15 @@ public class InvoiceController : ControllerBase
         return Ok(new { clientSecret = intent.ClientSecret });
     }
 
-    [HttpPost("pay")]
-    public async Task<IActionResult> CreateCheckoutSession([FromBody] PayInvoiceRequest request)
+    [HttpPost("pay/{id}")]
+    public async Task<IActionResult> CreateCheckoutSession(Guid id)
     {
-        var invoice = await _context.Invoices.FindAsync(request.InvoiceId);
+        var invoice = await _context.Invoices.FindAsync(id);
         if (invoice == null) return NotFound("Invoice not found");
 
         StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
 
+        // Create a chckout session
         var options = new SessionCreateOptions
         {
             PaymentIntentData = new SessionPaymentIntentDataOptions
@@ -124,25 +125,25 @@ public class InvoiceController : ControllerBase
             },
             PaymentMethodTypes = new List<string> { "card" },
             LineItems = new List<SessionLineItemOptions>
-        {
-            new SessionLineItemOptions
             {
-                PriceData = new SessionLineItemPriceDataOptions
+                new SessionLineItemOptions
                 {
-                    Currency = "eur",
-                    UnitAmount = (long)(invoice.Amount * 100),
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    PriceData = new SessionLineItemPriceDataOptions
                     {
-                        Name = "Invoice Payment",
-                        Description = $"Payment for Job #{invoice.JobId}"
+                        Currency = invoice.Currency.ToLower(),
+                        UnitAmount = (long)(invoice.Amount * 100), 
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = "Invoice Payment",
+                            Description = $"Payment for Job #{invoice.JobId}"
+                        },
                     },
-                },
-                Quantity = 1,
-            }
-        },
+                    Quantity = 1,
+                }
+            },
             Mode = "payment",
-            SuccessUrl = _config["Stripe:ReturnUrlBase"] + "/payment/success?invoiceId=" + request.InvoiceId,
-            CancelUrl = _config["Stripe:ReturnUrlBase"] + "/payment/cancel?invoiceId=" + request.InvoiceId
+            SuccessUrl = $"{_config["Stripe:ReturnUrlBase"]}/payment/success?invoiceId={id}",
+            CancelUrl = $"{_config["Stripe:ReturnUrlBase"]}/payment/cancel?invoiceId={id}"
         };
 
         var service = new SessionService();
@@ -150,6 +151,7 @@ public class InvoiceController : ControllerBase
 
         return Ok(new { url = session.Url });
     }
+
 
     // Model for the request body for payments
     public class PayInvoiceRequest
