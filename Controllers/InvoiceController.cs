@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using Stripe;
+using Stripe.Checkout;
 using Microsoft.Azure.Cosmos;
 using NixersDB;
 using NixersDB.Models;
@@ -47,11 +48,10 @@ public class InvoiceController : ControllerBase
         invoice.IssuedDate = DateTime.UtcNow;
         invoice.Status = "Pending";
 
-        // Call the CreatePaymentIntent method to generate a payment intent
         StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
         var options = new PaymentIntentCreateOptions
         {
-            Amount = (int)(invoice.Amount * 100), // Convert amount to cents
+            Amount = (int)(invoice.Amount * 100), 
             Currency = invoice.Currency.ToLower(),
             AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
             {
@@ -62,7 +62,6 @@ public class InvoiceController : ControllerBase
         var service = new PaymentIntentService();
         var intent = await service.CreateAsync(options);
 
-        // Save the PaymentIntentId to the invoice
         invoice.StripePaymentIntentId = intent.Id;
 
         _context.Invoices.Add(invoice);
@@ -108,5 +107,56 @@ public class InvoiceController : ControllerBase
 
         return Ok(new { clientSecret = intent.ClientSecret });
     }
+
+    [HttpPost("pay")]
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] PayInvoiceRequest request)
+    {
+        var invoice = await _context.Invoices.FindAsync(request.InvoiceId);
+        if (invoice == null) return NotFound("Invoice not found");
+
+        StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+
+        var options = new SessionCreateOptions
+        {
+            PaymentIntentData = new SessionPaymentIntentDataOptions
+            {
+                SetupFutureUsage = "off_session"
+            },
+            PaymentMethodTypes = new List<string> { "card" },
+            LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = "eur",
+                    UnitAmount = (long)(invoice.Amount * 100),
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = "Invoice Payment",
+                        Description = $"Payment for Job #{invoice.JobId}"
+                    },
+                },
+                Quantity = 1,
+            }
+        },
+            Mode = "payment",
+            SuccessUrl = _config["Stripe:ReturnUrlBase"] + "/payment/success?invoiceId=" + request.InvoiceId,
+            CancelUrl = _config["Stripe:ReturnUrlBase"] + "/payment/cancel?invoiceId=" + request.InvoiceId
+        };
+
+        var service = new SessionService();
+        var session = await service.CreateAsync(options);
+
+        return Ok(new { url = session.Url });
+    }
+
+    // Model for the request body for payments
+    public class PayInvoiceRequest
+    {
+        public Guid InvoiceId { get; set; }
+    }
+
+
 
 }
