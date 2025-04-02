@@ -13,6 +13,7 @@ namespace NixersDB
         public DbSet<JobApplications> JobApplications { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
 
+        public DbSet<ReviewData> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
