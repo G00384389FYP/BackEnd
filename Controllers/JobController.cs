@@ -35,6 +35,45 @@ namespace NixersDB.Controllers
             return Ok(response.Resource);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteJob(string id)
+        {
+            _logger.LogInformation("Received a DELETE request for JobId: {JobId}", id);
+
+            try
+            {
+                // Query to check if the job exists and retrieve its UserId ( i shouldve made the id the partition key but i was lazy)
+                var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
+                    .WithParameter("@id", id);
+                var iterator = _container.GetItemQueryIterator<JobData>(query);
+                var jobDocument = await iterator.ReadNextAsync();
+
+                if (!jobDocument.Any())
+                {
+                    _logger.LogWarning("Job with ID: {JobId} not found.", id);
+                    return NotFound(new { Message = "Job not found" });
+                }
+
+                var job = jobDocument.First();
+                _logger.LogInformation("Job with ID: {JobId} found. Proceeding to delete.", id);
+
+                var response = await _container.DeleteItemAsync<JobData>(id, new PartitionKey(job.UserId));
+                _logger.LogInformation("Job with ID: {JobId} successfully deleted.", id);
+
+                return Ok(new { Message = "Job deleted successfully", DeletedJob = response.Resource });
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("Job with ID: {JobId} not found during deletion.", id);
+                return NotFound(new { Message = "Job not found" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the job with ID: {JobId}", id);
+                return StatusCode(500, new { Message = "An error occurred while deleting the job", Error = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetJobs()
         {

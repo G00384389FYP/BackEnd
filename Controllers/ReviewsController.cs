@@ -136,4 +136,39 @@ public class ReviewsController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
+    [HttpGet("{reviewId}")]
+    
+    public async Task<IActionResult> GetReview()
+    {
+        try
+        {
+            var reviews = await _context.Reviews
+                .Join(
+                    _context.UserData, 
+                    review => review.ReviewerId,
+                    user => user.UserId, 
+                    (review, user) => new
+                    {
+                        review.ReviewId,
+                        review.JobId,
+                        review.InvoiceId,
+                        review.WorkRating,
+                        review.CustomerServiceRating,
+                        review.PriceRating,
+                        review.Comment,
+                        review.CreatedAt,
+                        review.UpdatedAt,
+                        ReviewerName = user.Name 
+                    }
+                )
+                .ToListAsync();
+
+            return Ok(reviews);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
 }
