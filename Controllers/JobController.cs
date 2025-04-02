@@ -18,11 +18,15 @@ namespace NixersDB.Controllers
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
 
-        public JobsController(ILogger<JobsController> logger, CosmosClient cosmosClient)
+        private readonly IBlobStorageService _blobStorageService;
+
+
+        public JobsController(ILogger<JobsController> logger, CosmosClient cosmosClient, IBlobStorageService blobStorageService)
         {
             _logger = logger;
             _cosmosClient = cosmosClient;
             _container = _cosmosClient.GetContainer("nixers-cosmos-ne", "jobs-container");
+            _blobStorageService = blobStorageService;
         }
 
         [HttpPost]
@@ -34,6 +38,28 @@ namespace NixersDB.Controllers
             var response = await _container.CreateItemAsync(job, new PartitionKey(job.UserId));
             return Ok(response.Resource);
         }
+
+        [HttpPost("image")]
+        public async Task<IActionResult> UploadJobImages([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            var blobName = $"{Guid.NewGuid()}-{file.FileName}";
+
+            using (var stream = file.OpenReadStream())
+            {
+                await _blobStorageService.UploadBlobAsync("job-media", blobName, stream);
+            }
+
+            var blobUrl = $"https://nixersstorage.blob.core.windows.net/job-media/{blobName}";
+            return Ok(new { Message = "File uploaded successfully", Url = blobUrl });
+        }
+
+
+        
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteJob(string id)

@@ -2,7 +2,14 @@ using Azure.Storage.Blobs;
 using System.IO;
 using System.Threading.Tasks;
 
-public class BlobStorageService
+
+public interface IBlobStorageService
+{
+    Task UploadBlobAsync(string containerName, string blobName, Stream content);
+    Task<Stream> DownloadBlobAsync(string containerName, string blobName);
+}
+
+public class BlobStorageService : IBlobStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
 

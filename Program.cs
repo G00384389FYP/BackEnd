@@ -20,7 +20,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<NixersDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-Console.WriteLine(" starting cosmos"); // debug for /users issue
+
 builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
@@ -29,12 +29,17 @@ builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
     return new CosmosClient(accountEndpoint, accountKey);
 });
 
-// Console.WriteLine(" starting blob"); // debug for /users issue
+
 // string connectionString = builder.Configuration.GetConnectionString("AzureStorage");
-// var blobServiceClient = new BlobServiceClient(connectionString);
-// builder.Services.AddSingleton(blobServiceClient);
+
 // builder.Services.AddSingleton<BlobStorageService>();
-// Console.WriteLine("Blob Complte "); // debug for /users issue
+builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
+builder.Services.AddSingleton(x =>
+{
+    var connectionString = builder.Configuration["AzureStorage:ConnectionString"];
+    return new BlobServiceClient(connectionString);
+});
+
 
 
 
