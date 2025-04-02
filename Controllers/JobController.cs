@@ -142,6 +142,32 @@ namespace NixersDB.Controllers
             return Ok(results);
         }
 
+        [HttpGet("user/{userId}/completed")]
+        public async Task<IActionResult> GetCompletedJobsByUserId(string userId)
+        {
+            _logger.LogInformation("Received a GET request to retrieve completed jobs for UserId: {UserId}", userId);
+
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.UserId = @userId AND c.JobStatus = @jobStatus")
+                .WithParameter("@userId", userId)
+                .WithParameter("@jobStatus", "Complete");
+            var iterator = _container.GetItemQueryIterator<JobData>(query);
+            var results = new List<JobData>();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                results.AddRange(response.ToList());
+            }
+
+            if (results.Count == 0)
+            {
+                _logger.LogWarning("No completed jobs found for UserId: {UserId}", userId);
+                return NotFound(new { Message = "No completed jobs found" });
+            }
+
+            return Ok(results);
+        }
+
 
 
         // Going to stop calling this but keeping it here cuz ill probably need it later reminder to remove if not ****************
