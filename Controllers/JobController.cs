@@ -121,8 +121,9 @@ namespace NixersDB.Controllers
         {
             _logger.LogInformation("Received a GET request to retrieve jobs for UserId: {UserId}", userId);
 
-            var query = new QueryDefinition("SELECT * FROM c WHERE c.UserId = @userId")
-                .WithParameter("@userId", userId);
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.UserId = @userId AND c.JobStatus = @jobStatus")
+                .WithParameter("@userId", userId)
+                .WithParameter("@jobStatus", "Open");
             var iterator = _container.GetItemQueryIterator<JobData>(query);
             var results = new List<JobData>();
 
@@ -134,7 +135,7 @@ namespace NixersDB.Controllers
 
             if (results.Count == 0)
             {
-                _logger.LogWarning("No jobs found for UserId: {UserId}", userId);
+                _logger.LogWarning("No jobs found for UserId: {UserId} with status 'Open'", userId);
                 return NotFound(new { Message = "No jobs found" });
             }
 
