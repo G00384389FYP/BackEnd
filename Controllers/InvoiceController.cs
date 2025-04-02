@@ -40,6 +40,22 @@ public class InvoiceController : ControllerBase
         return Ok(invoices);
     }
 
+    [HttpGet("{id}/paid")]
+    public async Task<IActionResult> GetPaidInvoiceByCustomerId(string id)
+    {
+        var invoices = await _context.Invoices
+            .Where(invoice => invoice.CustomerId == int.Parse(id) && invoice.Status == "Paid")
+            .ToListAsync();
+
+        if (!invoices.Any())
+        {
+            return Ok(new { Message = "No paid invoices found for the specified customer." });
+        }
+
+        return Ok(invoices);
+    }
+
+
 
     [HttpPost("{id}")]
     public async Task<IActionResult> CreateInvoice([FromBody] Invoice invoice)
@@ -133,6 +149,8 @@ public class InvoiceController : ControllerBase
         var session = await service.CreateAsync(options);
         invoice.StripeCheckoutSessionId = session.Id;
         await _context.SaveChangesAsync();       
+
+        
 
         return Ok(new { url = session.Url });
     }
