@@ -40,16 +40,18 @@ namespace NixersDB.Controllers
         }
 
         [HttpPost("image")]
-        public async Task<IActionResult> UploadJobImages([FromForm] IFormFile file)
+        [ApiExplorerSettings(IgnoreApi = false)] 
+        [Consumes("multipart/form-data")] 
+        public async Task<IActionResult> UploadJobImages([FromForm] UploadJobImageRequest file)
         {
-            if (file == null || file.Length == 0)
+            if (file == null || file.File.Length == 0)
             {
                 return BadRequest("No file uploaded.");
             }
 
             var blobName = $"{Guid.NewGuid()}-{file.FileName}";
 
-            using (var stream = file.OpenReadStream())
+            using (var stream = file.File.OpenReadStream())
             {
                 await _blobStorageService.UploadBlobAsync("job-media", blobName, stream);
             }
