@@ -164,7 +164,7 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No jobs found for UserId: {UserId} with status 'Open'", userId);
-                return NotFound(new { Message = "No jobs found" });
+                return Ok(new List<JobData>());
             }
 
             return Ok(results);
@@ -190,7 +190,7 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No completed jobs found for UserId: {UserId}", userId);
-                return NotFound(new { Message = "No completed jobs found" });
+                return Ok(new List<JobData>());
             }
 
             return Ok(results);
@@ -218,7 +218,8 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No jobs found for UserId: {UserId}", userId);
-                return NotFound(new { Message = "No jobs found" });
+                // return Ok(new { Message = "No jobs found", Jobs = new List<JobData>() });
+                return Ok(new List<JobData>());
             }
 
             return Ok(results);
@@ -244,7 +245,7 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No jobs found for UserId: {UserId} with status 'inprogress'", userId);
-                return NotFound(new { Message = "No jobs found" });
+                return Ok(new List<JobData>());
             }
 
             return Ok(results);
@@ -270,7 +271,7 @@ namespace NixersDB.Controllers
             if (results.Count == 0)
             {
                 _logger.LogWarning("No jobs found for UserId: {UserId} with status 'Complete'", userId);
-                return NotFound(new { Message = "No jobs found" });
+                return Ok(new List<JobData>());
             }
 
             return Ok(results);
