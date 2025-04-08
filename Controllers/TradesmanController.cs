@@ -53,6 +53,25 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Tradesman profile created successfully" });
         }
         
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> IncerementJobsCompleted([FromBody] UserIdRequest request)
+        {
+            _logger.LogInformation("Received a PUT request to update a tradesman's completed jobs.");
+
+            int userId = request.UserId;
+
+            var tradesmanProfile = await _context.TradesmanData.FirstOrDefaultAsync(t => t.UserId == userId);
+            if (tradesmanProfile == null)
+            {
+                _logger.LogError("Tradesman profile for UserId {UserId} not found.", userId);
+                return NotFound(new { Message = "Tradesman profile not found" });
+            }
+
+            tradesmanProfile.NumberOfJobsCompleted += 1;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Tradesman profile updated successfully" });
+        }
 
         [HttpGet]
         public async Task<IActionResult> CheckTradesmanProfile([FromQuery] int userId)
@@ -86,8 +105,6 @@ namespace NixersDB.Controllers
                 }
             });
         }
-
-
     }
 
     public class TradesmanProfileRequest
@@ -97,7 +114,5 @@ namespace NixersDB.Controllers
         public string Location { get; set; }
         public string TradeBio { get; set; }
         public double WorkDistance { get; set; }
-
     }
-
 }

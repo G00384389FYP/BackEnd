@@ -199,7 +199,7 @@ namespace NixersDB.Controllers
 
 
         // Going to stop calling this but keeping it here cuz ill probably need it later reminder to remove if not ****************
-        [HttpGet("tradesman/{userId}")]
+        [HttpGet("tradies/{userId}")]
         public async Task<IActionResult> GetAssignedJobsByUserId(string userId)
         {
             _logger.LogInformation("Received a GET request to retrieve assigned jobs for UserId: {UserId}", userId);
@@ -225,14 +225,14 @@ namespace NixersDB.Controllers
             return Ok(results);
         }
 
-        [HttpGet("tradesman/{userId}/inprogress")]
+        [HttpGet("tradies/{userId}/closed")]
         public async Task<IActionResult> GetInProgressAssignedJobsByUserId(string userId)
         {
             _logger.LogInformation("Received a GET request to retrieve assigned jobs for UserId: {UserId}", userId);
 
             var query = new QueryDefinition("SELECT * FROM c WHERE c.AssignedTradesman = @userId AND c.JobStatus = @jobStatus")
                 .WithParameter("@userId", userId)
-                .WithParameter("@jobStatus", "inprogress");
+                .WithParameter("@jobStatus", "closed");
             var iterator = _container.GetItemQueryIterator<JobData>(query);
             var results = new List<JobData>();
 
@@ -244,7 +244,7 @@ namespace NixersDB.Controllers
 
             if (results.Count == 0)
             {
-                _logger.LogWarning("No jobs found for UserId: {UserId} with status 'inprogress'", userId);
+                _logger.LogWarning("No jobs found for UserId: {UserId} with status 'closed'", userId);
                 return Ok(new List<JobData>());
             }
 
@@ -276,6 +276,39 @@ namespace NixersDB.Controllers
 
             return Ok(results);
         }
+
+        //  [HttpPut("{id}/inprogress")]
+        // public async Task<IActionResult> PutJobStatusInProgress(string id)
+        // {
+        //     _logger.LogInformation("Received a PUT request to update job status to in progress for JobId: {JobId}", id);
+
+        //     try
+        //     {
+        //         var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
+        //             .WithParameter("@id", id);
+        //         var iterator = _container.GetItemQueryIterator<JobData>(query);
+        //         var jobDocument = await iterator.ReadNextAsync();
+
+        //         if (!jobDocument.Any())
+        //         {
+        //             _logger.LogWarning("Job with ID: {JobId} not found.", id);
+        //             return NotFound(new { Message = "Job not found" });
+        //         }
+
+        //         var job = jobDocument.First();
+        //         job.JobStatus = "inprogress";
+
+        //         await _container.ReplaceItemAsync(job, job.Id, new PartitionKey(job.UserId));
+
+        //         _logger.LogInformation("Job status updated to complete for JobId: {JobId}", id);
+        //         return Ok(new { Message = "Job status updated to in progress" });
+        //     }
+        //     catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        //     {
+        //         _logger.LogWarning("Job with ID: {JobId} not found.", id);
+        //         return NotFound(new { Message = "Job not found" });
+        //     }
+        // }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutJobStatusComplete(string id)

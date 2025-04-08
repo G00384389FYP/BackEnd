@@ -49,6 +49,26 @@ namespace NixersDB.Controllers
             return Ok(new { Message = "Customer profile created successfully" });
         }
 
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> IncerementJobPosted([FromBody] UserIdRequest request)
+        {
+            _logger.LogInformation("Received a PUT request to update a customer profile.");
+
+            int userId = request.UserId;
+
+            var customerProfile = await _context.CustomerData.FindAsync(userId);
+            if (customerProfile == null)
+            {
+                _logger.LogError("Customer profile for UserId {UserId} not found.", userId);
+                return NotFound(new { Message = "Customer profile not found" });
+            }
+
+            customerProfile.JobsPosted += 1; 
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Customer profile updated successfully" });
+        }
+
         [HttpGet]
         public async Task<IActionResult> CheckCustomerProfile([FromQuery] int userId)
         {
