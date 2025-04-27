@@ -31,9 +31,6 @@ builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 });
 
 
-// string connectionString = builder.Configuration.GetConnectionString("AzureStorage");
-
-// builder.Services.AddSingleton<BlobStorageService>();
 builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
 builder.Services.AddSingleton(x =>
 {

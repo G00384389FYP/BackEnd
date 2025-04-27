@@ -1,4 +1,4 @@
-// Controllers/TradesmanController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ namespace NixersDB.Controllers
         public async Task<IActionResult> CreateTradesmanProfile([FromBody] TradesmanProfileRequest request)
         {
             _logger.LogInformation("Received a POST request to create a tradesman profile from the frontend.");
-
+            
             int userId = request.UserId;
 
             var user = await _context.UserData.FindAsync(userId);
@@ -54,16 +54,20 @@ namespace NixersDB.Controllers
         }
         
         [HttpPut("{userId}")]
-        public async Task<IActionResult> IncerementJobsCompleted([FromBody] UserIdRequest request)
+        public async Task<IActionResult> IncerementJobsCompleted([FromRoute] int userId)
         {
-            _logger.LogInformation("Received a PUT request to update a tradesman's completed jobs.");
+            _logger.LogInformation("Received a PUT request to update a tradesman profile.");
+            
+            if (userId <= 0)
+            {
+                _logger.LogError("Invalid UserId {UserId} provided in the request.", userId);
+                return BadRequest(new { Message = "Invalid UserId" });
+            }
 
-            int userId = request.UserId;
-
-            var tradesmanProfile = await _context.TradesmanData.FirstOrDefaultAsync(t => t.UserId == userId);
+            var tradesmanProfile = await _context.TradesmanData.FindAsync(userId);
             if (tradesmanProfile == null)
             {
-                _logger.LogError("Tradesman profile for UserId {UserId} not found.", userId);
+                _logger.LogError("Tradesman profile with UserId {UserId} not found.", userId);
                 return NotFound(new { Message = "Tradesman profile not found" });
             }
 
